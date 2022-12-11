@@ -1,0 +1,116 @@
+\documentclass[book]{jlreq}
+
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+%%\usepackage{siunitx}
+\usepackage{physics}
+\usepackage{bm}
+
+\renewcommand{\today}{\the\year/\the\month/\the\day}
+\renewcommand{\contentsname}{Contents}
+\renewcommand{\refname}{References}
+\renewcommand{\figurename}{Fig.~}
+\renewcommand{\tablename}{Table~}
+
+\begin{document}
+\title{Low-Level Radio Frequency Systems}
+\author{Shin-ichi YOSHIMOTO}
+\maketitle
+\tableofcontents
+%%\clearpage
+
+%%\part{数学的準備}
+\chapter{Introduction}
+
+\chapter{RF Control Strategy}
+\chapter{RF System Models}
+
+LLRFシステムの設計と解析には、RFシステムの（数学的）モデルが不可欠である。ここでいうモデルとは、RFシステムの出力と入力の間の（動的な）関係を伝達関数の形で記述したものです。伝達関数は、RF システムの動作と制限に関する洞察を与えます。例えば、RF ドライブ、ビーム負荷、および外部擾乱（電磁ノイズ、熱ドリフト、機械振動など）がある場合の RF システムの出力を、伝達関数を使用して予測することができます。また、モデルから得られる有用な情報として、ループ位相、ループゲイン、ループ遅延の安定限界値があり、これはRFコントローラのこれらの動作パラメータを決定するのに役立ちます。このように、RFシステムモデルは物理的な原理によって導き出されるため、動作パラメータの最適化やRFシステムの特性の特定にも利用することができます。
+
+\section{一般的な前提条件}
+
+本章で説明するモデルは、RF システムの構成要素の入出力関係（図 3.1 参照）に焦点を当て，それによって RF システムの制御と運用のための設計を可能にするものです。RF 空胴はモデル化される主要なコンポーネントとなります。空洞の入出力は、RF 駆動電力とビームに印加される RF 電界の包絡線によって表現される。空胴における高周波磁場の詳細な空間分布は、入出力関係に関係しないため、議論しない。本章では、RF 系は線形系としてモデル化し、非線形効果については7章で取り上げる。制御系の解析・設計では線形モデルの方が単純である。実際には、加速器の RF 系には非線形成分（RF アンプやクライストロンなど）が存在する。しかし、RFシステムの動作点付近の小さな範囲を考えるならば、線形モデルが良い近似となる。さらに、空洞の駆動項であるRF駆動電力やビームローディングは、モデル化においてノイズレスとして扱われる。Chap.6では、ノイズの多いRF駆動パワーとビームローディングが空洞フィールドに与える影響について議論する予定である。
+
+\begin{figure}[hbt]
+    \begin{center}
+      \includegraphics[width=12cm,clip]{figs/Fig3.1.pdf}
+      \caption{入出力関係に注目したRFシステムモデル}
+     \label{Fig3.1}
+    \end{center}
+\end{figure}
+
+加速器 RF システムは、一般的に固定周波数またはゆっくりと時間的に変化する周波数で動作する狭帯域のものである。同期システムから提供されるRF基準信号は、ローカルオシレータ（LO）、クロック、RF動作周波数など、RFステーション内の様々な周波数のソースとして使用される。ここでは、RF基準信号の周波数をRF基準周波数と定義し、それを表すのに$\omega_{ref}$を使用する。デフォルトでは、RF局の実際の動作周波数であるRF動作周波数$\omega_{RF}$は、$\omega_{ref}$に等しいと仮定します。もう 1 つの概念は、キャリア周波数 $\omega_{c}$で、これは柔軟に選択され、多くの場合 $\omega_c = \omega_{RF}$ を選択します。異なるRF信号の場合、$\omega_c$はそれらの共通項を表し、RF成分の入出力関係を記述する際には省略される。$\omega_c = \omega_{RF}$ とすると、RFシステムのモデルをその入出力の包絡線から求めることができる。
+
+$\omega_{RF}$ が定数の場合、$\omega_c$ は$\omega_{RF}$と同じように定義するのが便利ですが、時間的に変化する$\omega_{RF}$ の場合、$\omega_c$ を2通りの方法で扱うことができます。
+
+\begin{enumerate}
+    \item $\omega_c$ を変化させて $\omega_{RF}$ に追従させることができます。この方法は、RFシステムモデルにとって$\omega_{RF}$の変化を透過的にし、したがって、RF信号のエンベロープ（すなわちベースバンド信号）のみを扱うことになります。
+    \item 固定の $\omega_c$ を選択してもよい。これにより、RFシステムモデルが扱う信号には、時変位相 $\phi (t) = [\omega_{RF} (t)\omega_{c}]t + \phi_{0i}$ ($\varphi_{0i}$ は各信号の定数)が発生する。この方法を用いる場合、RF成分の正しい入出力関係を得るためには、すべてのRF信号の位相の時間変化項 $[\omega_{RF}(t) - \omega_{c}]t$を省略する必要がある。
+\end{enumerate}
+
+上記の最初のケースは、RF信号のスペクトルを直接DC付近にシフトさせ、2番目のケースは中間周波数（IF）付近にシフトさせるものです。本書では、RFシステムのモデリングとコントローラ設計を簡単にするために、常に $\omega_c = \omega_{RF}$ を仮定します。
+
+もうひとつの仮定は、加速器の RF システムの帯域幅が RF 動作周波数よりもはるかに小さいという事実から来ている（$\omega_{1/2} \ll \omega_{RF}$ 、ここで $\omega_{1/2}$ は全帯域幅の半分）。これは、RF 信号のエンベロープが RF 周波数よりはるかに遅く変化することを意味する。したがって、RF信号の包絡線は、RF周波数の数周期内でほぼ一定として扱うことができる。
+
+\section{RF モデリング方法}
+
+図3.1 のRFコンポーネントの入出力関係は、時間領域の関数 $g(t) : x(t) \rightarrow y(t)$ として記述することができる。ここで $g$ は静的システムではスカラー（$x$ または $y$ がベクトルの場合は行列）、動的システムでは微分方程式（またはその群）である。
+ラプラス変換を用いると$g(t)$は$Y(s) = G(s)X(s)$を満たす伝達関数$G(s)$として記述することができ、ここで$X(s)$と$Y(s)$は時間領域の入力と出力信号のラプラス変換である：$X(s) = \mathcal{L}\{x(t)\},\; Y(s) = \mathcal{L}\{y(t)\}$。
+演算子$\mathcal{L}\{\cdot\}$ はラプラス変換を表す。ここで、$t<0$のとき$x(t) = 0$、$y(t) = 0$ と仮定した。変数$s$は$s \coloneqq \sigma + j\omega$ として定義される複素周波数である。ここでは、信号のラプラス変換と伝達関数の集まりを周波数領域（$s$領域）という言葉で表すことにする。$s$の複素平面を$s$平面と呼ぶ。ラプラス変換は線形システムをモデル化する強力なツールであり、古典的な制御理論の基礎を形成している(Dorf and Bishop 2010)。システムの入力と出力が実数値を持つ時間領域のスカラーである実信号の場合、システムの伝達関数は実数値の係数を持ち、その周波数特性は正と負の周波数に対して対称である。
+
+これまで述べてきたように、RFコンポーネントの入出力信号には同じ搬送波周波数項が含まれており、入出力関係には有用な情報が得られない。そこで、入力信号と出力信号の包絡線から得られる伝達関数のみを考慮することにします。そのために、搬送波周波数項を取り除き、RF信号を位相（複素信号）として記述する。位相とRF信号の変換は、LLRFシステムにおけるRF信号の検出・作動処理とよく一致する。入出力の位相子にラプラス変換を適用すると、複素数値の係数を持ち、非対称な周波数応答を持つ伝達関数が得られる（Novotny and Wouterse 1976; Martin 2004; Harnefors 2007; Brandt 2007; Troeng 2019）。位相から派生したこのような伝達関数には、RFシステムモデルの次数を2から1に減らすことができるという第一の利点があります。後に、LLRFシステムの解析と設計を大幅に簡略化できることがわかります。
+
+\subsection{RF信号の説明}
+
+搬送波の周波数$\omega_c$、時間的に変化する振幅$x_0(t)$と位相$\varphi(t)$を持つRF信号は、時間領域で次のように記述することができる。
+%
+\begin{equation}
+    x(t) = x_0(t) \cdot \cos(\omega_c t + \varphi (t))
+    \label{eq:signal}
+\end{equation}
+%
+ここで、振幅と位相は、RFシステムの動的挙動のモデリングに関連するすべての情報を含んでいる。オイラーの式$e^{j\theta} = \cos\theta + j \sin\theta$から、複素時間領域信号は、上記の信号を虚部としてのサイン項$j x_0(t) \sin (\omega_c t + \varphi (t))$で展開することにより定義され、次のようになる。
+%
+\begin{equation}
+    \tilde{\bm{x}}(t) \coloneqq x_0(t) e^{j(\omega_c t+\varphi(t))}
+    \label{eq:complex}
+\end{equation}
+%
+搬送波周波数項 $e^{j\omega_c t}$は、すべてのRF信号で同じである。$\omega_c = \omega_{RF}$ と $\omega_{RF}$ は定数であるか、RF システムの時定数に比べればゆっくり変化するので、定数として扱うことができる。$e^{j\omega_c t}$を捨てることで、振幅と位相の情報をすべて保持したRF信号の複素包絡線を得ることができる。
+%
+\begin{equation}
+    \bm{x(t)} \coloneqq x_0(t) e^{j\varphi t} = I(t) + j Q(t)
+    \label{eq:phasor} 
+\end{equation}
+%
+複素エンベロープ(\refeq{eq:phasor})は、「位相ベクトル」の略でフェーザ表示と呼ばれます。その大きさと位相は、それぞれ信号(\refeq{eq:signal})の振幅と位相に対応します。本書では、RF信号をフェーザで表現することにします。
+
+なお，フェーザ表示は特定の$\omega_c$に対して定義されています。異なるキャリア周波数$\omega_c^{\prime}$を使用する場合、(\refeq{eq:signal}) を $x(t) = x_0(t)\cdot \cos(\omega_c^{\prime} t + (\omega_c - \omega_c^{\prime}) t + \varphi (t))$と書き直すことができ、フェーザ表示は$\bm{x(t)}^{\prime} = x_0(t) e^{j (\omega_c - \omega_c^{\prime}) + j \varphi (t)}$となります、
+キャリア周波数が$\omega_{RF}$と異なる場合、位相$\varphi^{\prime} (t) = (\omega_c - \omega_c^{\prime}) + \varphi (t)$の振動項が残っていることがわかります。つまり、RF 信号をベースバンドに変換する代わりに、中間周波数$\omega_{IF} = \omega_c - \omega_c^{\prime}$に変換しています。
+
+\subsection{Principle of RF Signal Detection}
+
+\subsection{フェーザ表示のラプラス変換}
+
+粒子加速器のRFシステムの入出力はRF信号である。図\ref{Fig3.1}のモデルでも搬送波の項があるが、位相（包絡線）による入出力関係の方がより興味深い。
+フェーザ表示(\refeq{eq:phasor})のラプラス変換を導くために、(\refeq{eq:complex})にラプラス変換を適用すると、次のようになる。
+
+\begin{equation}
+    \tilde{\bm{X}}(s) = \mathcal{L}\{\tilde{\bm{x}}(t)\} = X(s)\left( 1+j e^{-s\pi / (2\omega_c)}\right)
+\end{equation}
+
+%
+\begin{thebibliography}{9}
+    \bibitem{Ninomiya}
+    S. Ninomiya, Beam Loading Effect on RF System in Proton Synchrotrons, KEK Report 89-18 (1989).
+    \bibitem{llrf}
+    S. Simrock, Z. Geng, Low-Level Radio Frequency Systems, Springer (2022)
+    \bibitem{Schilcher}
+    T. Schilcher Vector sum control of pulsed accelerating fields in Lorentz force detuned superconducting cavities (1998).
+    \bibitem{Wilson}
+    P. B. Wilson, High energy electron linacs; application to storage ring RF systems and linear colliders (1987)
+\end{thebibliography}
+%
+%
+\end{document}
