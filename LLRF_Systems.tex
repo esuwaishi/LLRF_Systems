@@ -59,7 +59,7 @@ $\omega_{RF}$ が定数の場合、$\omega_c$ は$\omega_{RF}$と同じように
 ラプラス変換を用いると$g(t)$は$Y(s) = G(s)X(s)$を満たす伝達関数$G(s)$として記述することができ、ここで$X(s)$と$Y(s)$は時間領域の入力と出力信号のラプラス変換である：$X(s) = \mathcal{L}\{x(t)\},\; Y(s) = \mathcal{L}\{y(t)\}$。
 演算子$\mathcal{L}\{\cdot\}$ はラプラス変換を表す。ここで、$t<0$のとき$x(t) = 0$、$y(t) = 0$ と仮定した。変数$s$は$s \coloneqq \sigma + j\omega$ として定義される複素周波数である。ここでは、信号のラプラス変換と伝達関数の集まりを周波数領域（$s$領域）という言葉で表すことにする。$s$の複素平面を$s$平面と呼ぶ。ラプラス変換は線形システムをモデル化する強力なツールであり、古典的な制御理論の基礎を形成している(Dorf and Bishop 2010)。システムの入力と出力が実数値を持つ時間領域のスカラーである実信号の場合、システムの伝達関数は実数値の係数を持ち、その周波数特性は正と負の周波数に対して対称である。
 
-これまで述べてきたように、RFコンポーネントの入出力信号には同じ搬送波周波数項が含まれており、入出力関係には有用な情報が得られない。そこで、入力信号と出力信号の包絡線から得られる伝達関数のみを考慮することにします。そのために、搬送波周波数項を取り除き、RF信号を位相（複素信号）として記述する。位相とRF信号の変換は、LLRFシステムにおけるRF信号の検出・作動処理とよく一致する。入出力の位相子にラプラス変換を適用すると、複素数値の係数を持ち、非対称な周波数応答を持つ伝達関数が得られる（Novotny and Wouterse 1976\cite{Novotny}; Martin 2004; Harnefors 2007; Brandt 2007; Troeng 2019）。位相から派生したこのような伝達関数には、RFシステムモデルの次数を2から1に減らすことができるという第一の利点があります。後に、LLRFシステムの解析と設計を大幅に簡略化できることがわかります。
+これまで述べてきたように、RFコンポーネントの入出力信号には同じ搬送波周波数項が含まれており、入出力関係には有用な情報が得られない。そこで、入力信号と出力信号の包絡線から得られる伝達関数のみを考慮することにします。そのために、搬送波周波数項を取り除き、RF信号を位相（複素信号）として記述する。位相とRF信号の変換は、LLRFシステムにおけるRF信号の検出・作動処理とよく一致する。入出力の位相子にラプラス変換を適用すると、複素数値の係数を持ち、非対称な周波数応答を持つ伝達関数が得られる（Novotny and Wouterse 1976; Martin 2004; Harnefors 2007; Brandt 2007; Troeng 2019）。位相から派生したこのような伝達関数には、RFシステムモデルの次数を2から1に減らすことができるという第一の利点があります。後に、LLRFシステムの解析と設計を大幅に簡略化できることがわかります。
 
 \subsection{RF信号の説明}
 
@@ -216,7 +216,7 @@ RFシステムまたはRF信号のいずれかが搬送波周波数と比較し�
         Y_I(\hat{s})\\
         Y_Q(\hat{s})
     \end{bmatrix}
-    =
+    = \notag
     \begin{bmatrix}
         G_{11}(\hat{s}) & G_{12}(\hat{s}) \\
         G_{21}(\hat(s)) & G_{22}(\hat{s})
@@ -225,7 +225,6 @@ RFシステムまたはRF信号のいずれかが搬送波周波数と比較し�
         X_I(\hat{s}) \\
         X_Q(\hat{s})
     \end{bmatrix}
-    \label{eq:3.11}
 \end{equation}
 %
 ここで$G_{11}, G_{12}, G_{21}, G_{22}$は実数係数のみを含み、$\vb{Y}(\hat{s}) = Y_I(\hat{s}) + j Y_Q(\hat{s}), \; \vb{X}(\hat{s}) = X_I(\hat{s}) + j X_Q(\hat{s})$である。MIMO 形式は数値シミュレーションに適している。一方、(\ref{eq:3.10})はRFシステムの動作や特性を解析的に研究するのに有効です。表現を簡単にするため、意味が明確な場合は式中の独立変数$s, \hat{s}, t$を省略する。
@@ -236,16 +235,157 @@ RFシステムまたはRF信号のいずれかが搬送波周波数と比較し�
 
 \subsection{Parallel RLC Circuit Model}
 
+RF電力源で駆動される空洞は、並列RLC回路としてモデル化することができる（Schilcher 1998）。図\ref{Fig3.6}参照。RF源は電流源としてモデル化でき、空洞内のビームは空洞を駆動する第2の電流源として見える。RF電力を空洞に結合する入力カップラーは、電圧比$1:n$の無損失変圧器としてモデル化することができる。伝送路の特性インピーダンスは純抵抗$Z_0$であり、空洞から反射されたRF電力はサーキュレータで吸収される。空洞のフェーザ伝達関数は、入力を駆動電流電流フェーザ、出力を空洞電圧フェーザとして、空洞の動作を記述する。
+%
+\begin{figure}[hbt]
+    \begin{center}
+      \includegraphics[width=12cm,clip]{figs/Fig3.6.png}
+      \caption{RF電力源とビーム負荷で駆動される単セル空洞の回路モデル}
+     \label{Fig3.6}
+    \end{center}
+\end{figure}
+%
+\begin{figure}[hbt]
+    \begin{center}
+      \includegraphics[width=8cm,clip]{figs/Fig3.7.png}
+      \caption{Circuit model of a single-cell cavity converted to the cavity side of transformer}
+     \label{Fig3.7}
+    \end{center}
+\end{figure}
 
-\begin{thebibliography}{9}
+RF駆動電流と伝送線路インピーダンスをトランスの空洞側に変換すると、図\ref{Fig3.6}が図\ref{Fig3.7}に変化する。変圧器の原理に基づき、伝送線路インピーダンス$Z_0$は空洞側で空洞インピーダンスに平行な項$n^2 Z_0$を導入する。RF電力誘起駆動電流は、入力カップラーでのRF誘起電流の順方向と反射方向の重ね合わせでフェーザ$\vb{i}_{rf}$と表記される。ビーム誘起駆動電流は$\vb{i}_b$である。全体の駆動電流と空洞電圧は、フェーザ$\vb{i}_C$と$\vb{v}_C$で表され、$\vb{i}_C$は次のように計算される。
+%
+\begin{equation}
+    \vb{i}_C = \vb{i}_{rf} + \vb{i}_b
+    \label{eq:3.11}
+\end{equation}
+%
+空洞は通常、共振周波数、結合係数、負荷品質係数のようないくつかの測定可能なパラメータによって特徴付けられます。等価回路から意味のある空洞モデルを導き出すには、空洞パラメータと並列RLC回路パラメータの関係を利用します。表\ref{Table3.1}を参照してください。
+
+\begin{table}[hbt]
+    \caption{Relations between the cavity parameters and the parallel RLC circuit parameters}
+    \label{Table3.1}
+    \centering
+    \begin{tabular}{l|l|l} \hline
+        Cavity parameter & Notation & Relation with circuit parameters \\ \hline \hline
+        Resonance frequency & $\omega_0$ & $\omega_0 = 1/\sqrt{LC}$ \\ \hline
+        Unloaded quality factor & $Q_0$ & $Q_0 = \omega_0 W/P_{cav} = \omega_0 R C = R/L\omega_0$ \\ \hline
+        External quality factor & $Q_{ext}$ & $Q_{ext} = \omega_0 W/P_{ext} = \omega_0 n^2 Z_0 C$ \\ \hline
+        Coupling factor & $\beta$ & $\beta = P_{ext}/P_{cav} = Q_0/Q_{ext} = R/n^2 Z_0$ \\ \hline
+        Loaded quality factor & $Q_L$ & $Q_L = Q_0/(1+\beta)$ \\ \hline
+        Normalized shunt impedance & $r/Q$ & $R = (r/Q)Q_0/2$ \\ \hline
+        Loaded resistance & $R_L$ & $R_L R/(1+\beta) = (r/Q)Q_L/2$ \\ \hline
+        Half-bandwidth & $\omega_{1/2}$ & $\omega_{1/2} = \omega_0/2Q_L$ \\ \hline
+    \end{tabular}
+\end{table}
+
+上の表で、$W$は空洞に蓄積された電磁エネルギー、$P_{cav}$は空洞壁面に散逸したRF電力、$P_{ext}$は外部インピーダンスに散逸したRF電力で、入力カプラを通して空洞から放射されたRF電力に相当する。
+
+\begin{table}[hbt]
+    \caption{Complex impedances of basic circuit elements}
+    \label{Table3.2}
+    \centering
+    \begin{tabular}{l|l|l|l} \hline
+        Element & Notation & $s$ Domain impedance & $\hat{s}$ Domain impedance \\ \hline \hline
+        Resistance & $R$ & $R$ & $R$ \\ \hline
+        Capacitance & $C$ & $1/sC$ & $1/(\hat{s}+j\omega_c) C$\\ \hline
+        Inductance & $L$ & $sL$ & $(\hat{s+j\omega_c})$ \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Cavity Phasor Transfer Function}
+
+回路モデルは、フェーザラプラス変換法を用いて解析することができる。基本回路素子の$\hat{s}$領域複素インピーダンスは表\ref{Table3.2}に定義されています。
+
+図\ref{Fig3.7}によれば、空洞の入力フェーザ$\vb{i}_C$と出力フェーザ$\vb{v}_C$をフェーザラプラス変換＄$\va{I}_C(\hat{s})$と$\vb{V}_C(\hat{s})$で示せば、フェーザ伝達関数は次のように書ける。
+%
+\begin{equation}
+    \vb{G}_C(\hat{s}) = \frac{\vb{V}_C(\hat{s})}{\vb{I}_C(\hat{s})} 
+    = \frac{(\hat{s}+j\omega_c)/C}{(\hat{s}+j\omega_c)^2+(\hat{s}+j\omega_c)/(R_L C)+1/(LC)} \notag
+\end{equation}
+%
+表\ref{Table3.1}の関係を使って、空洞のパラメータで書き直すと
+%
+\begin{equation}
+    \vb{G}_C(\hat{s}) = \frac{2\omega_{1/2} R_L (\hat{s}+j\omega_c)}{(\hat{s}+j\omega_c)^2+2\omega_{1/2}(\hat{s}+j\omega_c)+\omega_0^2}
+    \label{eq:3.12}
+\end{equation}
+%
+(\ref{eq:3.12})の2つの極は$\hat{s}_{p1,2} = -\omega_{1/2} \pm j\sqrt{\omega_0^2-\omega_{1/2}^2} - j\omega_c$となる。空洞の帯域幅は普通、共振周波数よりはるかに小さい、つまり、$\omega_{1/2} \ll \omega_0$ならば、極は$\hat{s}_{p1}\approx -\omega_{1/2}+j(\omega_0 - \omega_c)$と$\hat{s_{p2}}\approx -\omega_{1/2}-j(\omega_0 + \omega_c)$に近似することができる。この2つの極は、それぞれ周波数$\omega_0-\omega_c$と$\omega_0 + \omega_c$における2つの減衰共振を定義しています。もし、空洞の離調量を次のように定義し、 
+%
+\begin{equation}
+    \Delta\omega = \omega_0 - \omega_c
+    \label{eq:3.13}
+\end{equation}
+%
+$\Delta\omega \ll \omega_0$とすると、式(\ref{eq:3.12})は次のように簡略化される。
+%
+\begin{equation}
+    \vb{G}_C(\hat{s}) = \frac{\omega_{1/2}R_L}{\hat{s}+\omega_{1/2}-j\Delta\omega}
+    \label{eq:3.14}
+\end{equation}
+%
+ここでは、RF信号の包絡線の緩やかな変化のみを考慮し、$|\hat{s}| \ll \omega_c \approx \omega_0$を仮定している。(\ref{eq:3.12})の$-2\omega_c$付近の通過帯域は無視した。図\ref{Fig3.5}の考察を参照されたい。(\ref{eq:3.14})に見られるように、$\hat{s}$領域の空洞モデルは単一の複素数の極を持つ1次系に単純化され、正と負の周波数で非対称な周波数応答となる。時間領域の空洞入出力フェーザーの微分方程式は(\ref{eq:3.14})から導き出すことができ，空洞の挙動を時間領域で解析するのに有効である。
+%
+\begin{equation}
+    \vb{\dot{v}}_C + (\omega_{1/2} - j\Delta\omega)\vb{v}_C = \omega_{1/2}R_L\vb{i}_C
+    \label{eq:3.15}
+\end{equation}
+%
+フェーザの実部と虚部を分離することにより，空洞の状態空間方程式は次のように書ける。
+%
+\begin{equation}
+    \begin{bmatrix}
+        \dot{v}_{CI}\\
+        \dot{v}_{CQ}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        -\omega_{1/2} & -\Delta\omega \\
+        \Delta\omega & -\omega_{1/2}
+    \end{bmatrix}
+    \begin{bmatrix}
+        v_{CI} \\
+        v_{CQ}
+    \end{bmatrix}
+    +\omega_{1/2}R_L
+    \begin{bmatrix}
+        i_{CI} \\
+        i_{CQ}
+    \end{bmatrix}
+    \label{eq:3.16}
+\end{equation}
+%
+ここで、$\vb{v}_C = v_{CI} + j v_{CQ}$および$\vb{i}_C = i_{CI} + j i_{CQ}$である。この状態空間方程式は、現代の制御理論によくマッチしており、空洞モデルから導かれる離散的アルゴリズムの実装に適している。
+
+\subsection{Cavity Step Response}
+
+\subsection{Cavity Response to RF Power}
+
+\subsection{Cavity Response to a Single Bunch}
+
+RF空胴では、荷電粒子は通常バンチで加速される。一つのバンチが空洞を通過するとき、過渡的な空洞電圧を誘起する。この過渡電圧はRF検出器のノイズより大きければ測定可能であり、その情報はビーム診断（バンチ到達時間など）やビームベースの校正（ビーム位相校正など）に利用できる（Pawlik et al.2005）。
+
+フェーザ伝達関数(3.14)から、単一のバンチに対する空洞の応答を計算することができる。電荷量$Q_b$を持つバンチがあるとする。バンチが空洞を通過するとき、短いガウス型の電流パルスとみなすことができ（図3.11a参照）、電流パルスの下の面積はバンチ電荷量に等しい。バンチ長$\Delta t$が空洞の時定数よりずっと小さい場合、時間領域での単一バンチ電流パルスは$i_{bs} = Q_b\delta(t)$としてDirac delta関数に単純化できる (Koontz et al. 1977)。図3.11b参照. 添え字"bs"は単一バンチの空洞駆動項を表す. ここではバンチは$t = 0$で入射すると仮定する。
+
+$\delta (t)$のラプラス変換は1なので、(3.8)より、$i_{bs}$のフェーザラプラス変換は
+
+%
+\begin{figure}[hbt]
+    \begin{center}
+      \includegraphics[width=12cm,clip]{figs/Fig3.11.png}
+      \caption{Time domain current of a single bunch}
+     \label{Fig3.11}
+    \end{center}
+\end{figure}
+
+\subsection{Cavity Response to a Bunch Train}
+
+\begin{thebibliography}{99}
     \bibitem{Novotny}
     Novotny DW, Wouterse JH (1976) Induction machine transfer function and dynamic response by means of complex time variables. IEEE Trans Power App Syst 95(4):1325–1335. https://doi.org/10.1109/T-PAS.1976.32227
-    \bibitem{llrf}
-    S. Simrock, Z. Geng, Low-Level Radio Frequency Systems, Springer (2022)
     \bibitem{Schilcher}
-    T. Schilcher Vector sum control of pulsed accelerating fields in Lorentz force detuned superconducting cavities (1998).
-    \bibitem{Wilson}
-    P. B. Wilson, High energy electron linacs; application to storage ring RF systems and linear colliders (1987)
+    Schilcher T (1998) Vector sum control of pulsed accelerating fields in Lorentz force detuned superconducting cavities. Ph.D. thesis, Hamburg University
 \end{thebibliography}
 %
 %
